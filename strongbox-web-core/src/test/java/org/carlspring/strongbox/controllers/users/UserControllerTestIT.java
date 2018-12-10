@@ -22,6 +22,7 @@ import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -56,11 +57,13 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
+@Execution(CONCURRENT)
 @Transactional
 public class UserControllerTestIT
         extends RestAssuredBaseTest
@@ -317,7 +320,7 @@ public class UserControllerTestIT
         // retrieve newly created user and store the objectId
         User createdUser = retrieveUserByName(test.getUsername());
         assertEquals(username, createdUser.getUsername());
-        
+
         User user = retrieveUserByName(username);
         UserForm input = buildFromUser(user, null);
         input.setPassword(null);
@@ -338,7 +341,7 @@ public class UserControllerTestIT
 
         assertNotNull(updatedUser.getPassword());
         assertEquals(user.getPassword(), updatedUser.getPassword());
-        
+
         deleteCreatedUser(username);
     }
 
@@ -563,8 +566,8 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("token", startsWith("eyJhbGciOiJIUzI1NiJ9"));
-        } 
-        finally 
+        }
+        finally
         {
             deleteCreatedUser(username);
         }
