@@ -15,7 +15,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.http.pool.PoolStats;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
@@ -23,13 +22,12 @@ import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
-@Execution(CONCURRENT)
 public class HttpConnectionPoolConfigurationManagementControllerTestIT
         extends RestAssuredBaseTest
 {

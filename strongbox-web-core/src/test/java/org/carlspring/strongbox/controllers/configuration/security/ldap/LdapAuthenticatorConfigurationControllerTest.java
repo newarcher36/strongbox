@@ -1,18 +1,5 @@
 package org.carlspring.strongbox.controllers.configuration.security.ldap;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
 import org.carlspring.strongbox.authentication.api.AuthenticationItem;
 import org.carlspring.strongbox.authentication.api.AuthenticationItems;
@@ -25,11 +12,16 @@ import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -39,6 +31,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.startsWith;
 
 /**
  * @author Przemyslaw Fusik
@@ -46,7 +42,8 @@ import org.springframework.security.test.context.support.WithMockUser;
  * @author sbespalov
  */
 @IntegrationTest
-@Execution(SAME_THREAD)
+@ActiveProfiles({ "LdapAuthenticatorConfigurationControllerTest",
+                  "test" })
 public class LdapAuthenticatorConfigurationControllerTest
         extends RestAssuredBaseTest
 {
@@ -111,7 +108,6 @@ public class LdapAuthenticatorConfigurationControllerTest
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void shouldUpdateFullLdapConfiguration()
-            throws IOException
     {
 
         LdapConfiguration configuration = ldapAuthenticationConfigurationManager.getConfiguration();

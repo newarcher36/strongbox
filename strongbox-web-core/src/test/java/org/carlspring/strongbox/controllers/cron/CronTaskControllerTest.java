@@ -3,7 +3,11 @@ package org.carlspring.strongbox.controllers.cron;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
-import org.carlspring.strongbox.cron.jobs.*;
+import org.carlspring.strongbox.cron.jobs.CleanupExpiredArtifactsFromProxyRepositoriesCronJob;
+import org.carlspring.strongbox.cron.jobs.GroovyCronJob;
+import org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob;
+import org.carlspring.strongbox.cron.jobs.RebuildMavenMetadataCronJob;
+import org.carlspring.strongbox.cron.jobs.RegenerateChecksumCronJob;
 import org.carlspring.strongbox.forms.cron.CronTaskConfigurationForm;
 import org.carlspring.strongbox.forms.cron.CronTaskConfigurationFormField;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -21,7 +25,6 @@ import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,17 +34,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.controllers.cron.CronTaskController.CRON_CONFIG_FILE_NAME_KEY;
 import static org.carlspring.strongbox.controllers.cron.CronTaskController.HEADER_NAME_CRON_TASK_ID;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
+
 
 /**
  * @author Alex Oreshkevich
  * @author Pablo Tirado
  */
 @IntegrationTest
-@Execution(CONCURRENT)
 public class CronTaskControllerTest
         extends RestAssuredBaseTest
 {

@@ -9,9 +9,11 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+
 /**
  * @author Przemyslaw Fusik
  */
+
 public class DirectoryTraversalFilterTest
 {
 

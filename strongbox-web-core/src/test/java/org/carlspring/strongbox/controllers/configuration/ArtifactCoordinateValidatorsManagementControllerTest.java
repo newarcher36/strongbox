@@ -13,7 +13,6 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
@@ -27,7 +26,7 @@ import static org.carlspring.strongbox.web.RepositoryMethodArgumentResolver.NOT_
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
 
 /**
  * @author Przemyslaw Fusik
@@ -35,7 +34,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
  * @author Aditya Srinivasan
  */
 @IntegrationTest
-@Execution(CONCURRENT)
 public class ArtifactCoordinateValidatorsManagementControllerTest
         extends MavenRestAssuredBaseTest
 {

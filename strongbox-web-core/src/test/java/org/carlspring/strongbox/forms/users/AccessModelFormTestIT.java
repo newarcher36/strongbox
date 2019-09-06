@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.forms.users;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-
-import org.apache.commons.lang3.StringUtils;
-import org.assertj.core.api.Java6Assertions;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -23,23 +8,34 @@ import org.carlspring.strongbox.users.dto.AccessModelDto;
 import org.carlspring.strongbox.users.dto.PathPrivilegesDto;
 import org.carlspring.strongbox.users.dto.RepositoryPrivilegesDto;
 import org.carlspring.strongbox.users.dto.StoragePrivilegesDto;
+
+import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.Java6Assertions;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 
 /**
  * @author Przemyslaw Fusik
  * @author Pablo Tirado
  */
 @IntegrationTest
-@Execution(CONCURRENT)
 public class AccessModelFormTestIT
         extends RestAssuredBaseTest
 {

@@ -15,10 +15,13 @@ import java.io.IOException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -31,7 +34,7 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.CustomMatchers.equalByToString;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
 
 /**
  * @author Przemyslaw Fusik
@@ -41,7 +44,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ActiveProfiles({ "test",
                   "AuthenticatorsConfigControllerTestConfig" })
 @IntegrationTest
-@Execution(CONCURRENT)
 public class AuthenticatorsConfigControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -150,7 +152,7 @@ public class AuthenticatorsConfigControllerTestIT
         AuthenticationItems authenticationItems = new AuthenticationItems();
         authenticationItems.getAuthenticationItemList().add(authenticationItem);
 
-        String url = getContextBaseUrl() + "/authenticators";
+        String url = getContextBaseUrl();
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(authenticationItems)

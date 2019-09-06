@@ -1,18 +1,13 @@
 package org.carlspring.strongbox.web;
 
-import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.io.IOException;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.configuration.StoragesConfigurationManager;
-import org.carlspring.strongbox.interceptors.RepositoryRequestInterceptor;
 import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
+
+import javax.inject.Inject;
+import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,15 +24,17 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.servlet.handler.MappedInterceptor;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ContextConfiguration(classes = LayoutRequestMappingTest.LayoutRequestMappingConfiguration.class)
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = { LayoutRequestMappingTest.TestLayoutController.class, LayoutRequestMappingTest.AnotherLayoutController.class }, secure = false)
-@ActiveProfiles({"test", "LayoutRequestMappingTest"})
+@WebMvcTest(controllers = { LayoutRequestMappingTest.TestLayoutController.class,
+                            LayoutRequestMappingTest.AnotherLayoutController.class }, secure = false)
+@ActiveProfiles({ "test",
+                  "LayoutRequestMappingTest" })
 public class LayoutRequestMappingTest
 {
 

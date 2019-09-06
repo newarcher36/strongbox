@@ -16,8 +16,6 @@ import java.lang.annotation.Target;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.maven.index.updater.ResourceFetcher;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -48,7 +46,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @TestExecutionListeners(listeners = { RestAssuredTestExecutionListener.class,
                                       CacheManagerTestExecutionListener.class },
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@Execution(ExecutionMode.SAME_THREAD)
 public @interface IntegrationTest
 {
 

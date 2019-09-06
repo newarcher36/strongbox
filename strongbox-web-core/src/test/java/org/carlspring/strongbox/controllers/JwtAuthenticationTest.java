@@ -59,7 +59,7 @@ public class JwtAuthenticationTest
     public void testJWTAuthShouldPassWithToken()
             throws Exception
     {
-        String url = getContextBaseUrl() + "/login";
+        String url = "/api/login";
 
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
 

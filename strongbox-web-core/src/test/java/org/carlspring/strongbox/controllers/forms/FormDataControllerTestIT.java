@@ -7,19 +7,24 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+
+
 
 /**
  * @author Przemyslaw Fusik
  */
 @IntegrationTest
-@Execution(CONCURRENT)
 public class FormDataControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -36,7 +41,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetUserFields()
     {
-        String url = getContextBaseUrl() + "/userfields";
+        String url = getContextBaseUrl() + "/userFields";
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)

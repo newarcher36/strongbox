@@ -2,7 +2,11 @@ package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.forms.configuration.*;
+import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.RemoteRepositoryForm;
+import org.carlspring.strongbox.forms.configuration.RepositoryForm;
+import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
@@ -25,38 +29,44 @@ import com.google.common.collect.Lists;
 import org.apache.http.pool.PoolStats;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpServerErrorException;
-import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.*;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.FAILED_SAVE_STORAGE_FORM_ERROR;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_REPOSITORY_REMOVAL;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_REPOSITORY_SAVE;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_SAVE_STORAGE;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_STORAGE_REMOVAL;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_UPDATE_STORAGE;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
-@Execution(CONCURRENT)
 public class StoragesConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
-    private static final String VALID_STORAGE_ID = "storage1";
+    private static final String VALID_STORAGE_ID = "storage-sccti";
 
     private static final String EXISTING_STORAGE_ID = STORAGE0;
 
     private static final String EXISTING_REPOSITORY_ID = "releases";
-
-    private RepositoryForm repositoryForm0;
-
-    private RepositoryForm repositoryForm1;
 
     @Inject
     private PropertiesBooter propertiesBooter;
@@ -71,6 +81,38 @@ public class StoragesConfigurationControllerTestIT
     {
         super.init();
         setContextBaseUrl("/api/configuration/strongbox/storages");
+    }
+
+    private RepositoryForm createRepositoryForm0()
+    {
+        RepositoryForm repositoryForm0 = new RepositoryForm();
+        repositoryForm0.setId("repository0");
+        repositoryForm0.setAllowsRedeployment(true);
+        repositoryForm0.setSecured(true);
+        repositoryForm0.setLayout(Maven2LayoutProvider.ALIAS);
+        repositoryForm0.setType("hosted");
+        repositoryForm0.setPolicy("release");
+        repositoryForm0.setImplementation("file-system");
+        repositoryForm0.setStatus("In Service");
+
+        return repositoryForm0;
+    }
+
+    private RepositoryForm createRepositoryForm1()
+    {
+        RepositoryForm repositoryForm1 = new RepositoryForm();
+        repositoryForm1.setId("repository1");
+        repositoryForm1.setAllowsForceDeletion(true);
+        repositoryForm1.setTrashEnabled(true);
+        repositoryForm1.setProxyConfiguration(createProxyConfiguration());
+        repositoryForm1.setLayout(Maven2LayoutProvider.ALIAS);
+        repositoryForm1.setType("hosted");
+        repositoryForm1.setPolicy("release");
+        repositoryForm1.setImplementation("file-system");
+        repositoryForm1.setStatus("In Service");
+        repositoryForm1.setGroupRepositories(ImmutableSet.of("repository0"));
+
+        return repositoryForm1;
     }
 
     private ProxyConfigurationForm createProxyConfiguration()
@@ -149,7 +191,7 @@ public class StoragesConfigurationControllerTestIT
     }
 
     @Test
-    public void testCreateAndUpdateStorage()
+    public void testCreateUpdateAndDeleteStorage()
     {
         final String storageId = VALID_STORAGE_ID;
 
@@ -167,32 +209,13 @@ public class StoragesConfigurationControllerTestIT
                      .put(url)
                      .prettyPeek()
                      .then()
-                     .statusCode(HttpStatus.OK.value());
+                     .statusCode(OK);
 
-        RepositoryForm r1 = new RepositoryForm();
-        r1.setId("repository0");
-        r1.setAllowsRedeployment(true);
-        r1.setSecured(true);
-        r1.setLayout(Maven2LayoutProvider.ALIAS);
-        r1.setType("hosted");
-        r1.setPolicy("release");
-        r1.setImplementation("file-system");
-        r1.setStatus("In Service");
+        RepositoryForm repositoryForm0 = createRepositoryForm0();
+        RepositoryForm repositoryForm1 = createRepositoryForm1();
 
-        RepositoryForm r2 = new RepositoryForm();
-        r2.setId("repository1");
-        r2.setAllowsForceDeletion(true);
-        r2.setTrashEnabled(true);
-        r2.setProxyConfiguration(createProxyConfiguration());
-        r2.setLayout(Maven2LayoutProvider.ALIAS);
-        r2.setType("hosted");
-        r2.setPolicy("release");
-        r2.setImplementation("file-system");
-        r2.setStatus("In Service");
-        r2.setGroupRepositories(ImmutableSet.of("repository0"));
-
-        addRepository(r1, storage1);
-        addRepository(r2, storage1);
+        addRepository(repositoryForm0, storage1);
+        addRepository(repositoryForm1, storage1);
 
         Storage storage = getStorage(storageId);
 
@@ -219,6 +242,17 @@ public class StoragesConfigurationControllerTestIT
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
         assertEquals(storage.getBasedir(), storage1.getBasedir(),
                      "Failed to update storage (" + storageId + ") basedir!");
+
+        // 3. Delete storage created.
+        givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
+                     .accept(MediaType.TEXT_PLAIN_VALUE)
+                     .param("force", true)
+                     .when()
+                     .delete(url, storageId)
+                     .peek() // Use peek() to print the output
+                     .then()
+                     .statusCode(OK)
+                     .body(containsString(SUCCESSFUL_STORAGE_REMOVAL));
     }
 
     @ParameterizedTest
@@ -264,20 +298,13 @@ public class StoragesConfigurationControllerTestIT
 
         StorageForm storage0 = buildStorageForm(storageId);
 
-        RepositoryForm repositoryForm0_1 = new RepositoryForm();
+        RepositoryForm repositoryForm0_1 = createRepositoryForm0();
         repositoryForm0_1.setId("repository0_1_" + extension + "." + extension);
-        repositoryForm0_1.setAllowsRedeployment(true);
-        repositoryForm0_1.setSecured(true);
-        repositoryForm0_1.setLayout(Maven2LayoutProvider.ALIAS);
         MavenRepositoryConfigurationForm mavenRepositoryConfigurationForm = new MavenRepositoryConfigurationForm();
         mavenRepositoryConfigurationForm.setIndexingEnabled(true);
         mavenRepositoryConfigurationForm.setIndexingClassNamesEnabled(false);
         mavenRepositoryConfigurationForm.setCronExpression("0 0 2 * * ?");
         repositoryForm0_1.setRepositoryConfiguration(mavenRepositoryConfigurationForm);
-        repositoryForm0_1.setType("hosted");
-        repositoryForm0_1.setPolicy("release");
-        repositoryForm0_1.setImplementation("file-system");
-        repositoryForm0_1.setStatus("In Service");
         Set<String> groupRepositories = new LinkedHashSet<>();
         String groupRepository1 = "maven-central";
         String groupRepository2 = "carlspring";
@@ -287,17 +314,9 @@ public class StoragesConfigurationControllerTestIT
 
         Integer maxConnectionsRepository2 = 30;
 
-        RepositoryForm repositoryForm0_2 = new RepositoryForm();
+        RepositoryForm repositoryForm0_2 = createRepositoryForm1();
         repositoryForm0_2.setId("repository0_2_" + extension + "." + extension);
-        repositoryForm0_2.setAllowsForceDeletion(true);
-        repositoryForm0_2.setTrashEnabled(true);
-        repositoryForm0_2.setProxyConfiguration(createProxyConfiguration());
-        repositoryForm0_2.setLayout(Maven2LayoutProvider.ALIAS);
         repositoryForm0_2.setType("proxy");
-        repositoryForm0_2.setPolicy("release");
-        repositoryForm0_2.setImplementation("file-system");
-        repositoryForm0_2.setStatus("In Service");
-        repositoryForm0_2.setGroupRepositories(ImmutableSet.of("repository0"));
         repositoryForm0_2.setHttpConnectionPool(maxConnectionsRepository2);
 
         String secondRepositoryUrl = "http://abc.def";
@@ -526,7 +545,11 @@ public class StoragesConfigurationControllerTestIT
     public void testCreateAndDeleteStorage(String extension)
     {
         final String storageId = "storage2_" + extension + "." + extension;
+
+        final RepositoryForm repositoryForm0 = createRepositoryForm0();
         final String repositoryId0 = repositoryForm0.getId();
+
+        final RepositoryForm repositoryForm1 = createRepositoryForm1();
         final String repositoryId1 = repositoryForm1.getId();
 
         StorageForm storage2 = buildStorageForm(storageId);
@@ -598,19 +621,22 @@ public class StoragesConfigurationControllerTestIT
                              "com",
                              "pl",
                              "json" })
-    public void whenStorageIsCreatedWithoutBasedirProvidedDefaultIsSet(String extension)
+    public void whenStorageIsCreatedWithoutBasedirProvidedDefaultIsSet(String extension,
+                                                                       TestInfo testInfo)
     {
-        final String storageId = "storage4_" + extension + "." + extension;
+        final String methodName = getMethodName(testInfo);
+        final String storageId = String.format("storage-%s-%s.%s", methodName, extension, extension);
+        final RepositoryForm repositoryForm0 = createRepositoryForm0();
 
-        StorageForm storage4 = buildStorageForm(storageId);
-        storage4.setBasedir(null);
+        StorageForm newStorage = buildStorageForm(storageId);
+        newStorage.setBasedir(null);
 
         String url = getContextBaseUrl();
 
         // 1. Create storage without base dir provided.
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
-                     .body(storage4)
+                     .body(newStorage)
                      .when()
                      .put(url)
                      .peek() // Use peek() to print the output
@@ -622,7 +648,7 @@ public class StoragesConfigurationControllerTestIT
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
 
         // Storage basedir will be created only when repository created.
-        addRepository(repositoryForm0, storage4);
+        addRepository(repositoryForm0, newStorage);
 
         // 2. Confirm default base dir has been created
         String storageBaseDir = getBaseDir(storageId);
@@ -651,6 +677,12 @@ public class StoragesConfigurationControllerTestIT
 
         // 5. Confirm base dir has been deleted
         MatcherAssert.assertThat(Files.exists(Paths.get(storageBaseDir)), CoreMatchers.equalTo(false));
+    }
+
+    private String getMethodName(TestInfo testInfo)
+    {
+        Assumptions.assumeTrue(testInfo.getTestMethod().isPresent());
+        return testInfo.getTestMethod().get().getName();
     }
 
 }
