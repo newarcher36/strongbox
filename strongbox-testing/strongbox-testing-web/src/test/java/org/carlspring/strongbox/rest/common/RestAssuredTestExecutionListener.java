@@ -1,10 +1,9 @@
 package org.carlspring.strongbox.rest.common;
 
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
 import org.springframework.web.context.WebApplicationContext;
-
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
 
 /**
  * @author sbespalov
@@ -15,19 +14,19 @@ public class RestAssuredTestExecutionListener extends AbstractTestExecutionListe
 
     @Override
     public void beforeTestClass(TestContext testContext)
-        throws Exception
     {
         WebApplicationContext applicationContext = (WebApplicationContext) testContext.getApplicationContext();
-        
+
+        RestAssuredMockMvc.reset();
         RestAssuredMockMvc.webAppContextSetup(applicationContext);
 
     }
 
     @Override
     public void afterTestClass(TestContext testContext)
-        throws Exception
     {
-        RestAssuredMockMvc.reset();
+        // Disabled because it affects to tests concurrent execution.
+        //RestAssuredMockMvc.reset();
     }
 
 }
