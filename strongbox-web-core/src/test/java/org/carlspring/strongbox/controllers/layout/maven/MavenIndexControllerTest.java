@@ -26,11 +26,11 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import io.restassured.http.Header;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static com.google.common.base.Predicates.not;
@@ -117,21 +117,23 @@ public class MavenIndexControllerTest
             throws Exception
     {
         super.init();
+
+        setContextBaseUrl("/api/maven/index");
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void hostedRepositoryIndexShouldBeRegeneratedOnDemand(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
-                                                                                  setup = MavenIndexedRepositorySetup.class)
-                                                                 Repository repository,
+            setup = MavenIndexedRepositorySetup.class)
+                                                                         Repository repository,
                                                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
-                                                                                    id = "org.carlspring.strongbox.indexes:strongbox-test",
-                                                                                    versions = { "1.0",
-                                                                                                 "1.1" },
-                                                                                    classifiers = { "javadoc",
-                                                                                                    "sources" })
-                                                                 List<Path> artifactPaths)
+                                                                         id = "org.carlspring.strongbox.indexes:strongbox-test",
+                                                                         versions = { "1.0",
+                                                                                      "1.1" },
+                                                                         classifiers = { "javadoc",
+                                                                                         "sources" })
+                                                                         List<Path> artifactPaths)
             throws IOException, NoSuchAlgorithmException
     {
         hostedRepositoryIndexCreator.apply(repository);
@@ -140,7 +142,7 @@ public class MavenIndexControllerTest
                                                                             .resolve("nexus-maven-repository-index.gz");
         String beforeChecksum = MessageDigestUtils.calculateChecksum(indexPath, "SHA-1");
 
-        String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -162,21 +164,21 @@ public class MavenIndexControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void shouldNotAllowToRebuildTheIndex(@MavenRepository(repositoryId = REPOSITORY_RELEASES_2)
-                                                Repository repository,
+                                                        Repository repository,
                                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
-                                                                   id = "org.carlspring.strongbox.indexes:strongbox-test",
-                                                                   versions = { "1.0",
-                                                                                "1.1" },
-                                                                   classifiers = { "javadoc",
-                                                                                   "sources" })
-                                                List<Path> artifactPaths)
+                                                        id = "org.carlspring.strongbox.indexes:strongbox-test",
+                                                        versions = { "1.0",
+                                                                     "1.1" },
+                                                        classifiers = { "javadoc",
+                                                                        "sources" })
+                                                        List<Path> artifactPaths)
     {
         RepositoryPath indexPath = repositoryLocalIndexDirectoryPathResolver.resolve(repository)
                                                                             .resolve("nexus-maven-repository-index.gz");
 
         assertThat(indexPath).matches(not(Files::exists));
 
-        String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -192,19 +194,19 @@ public class MavenIndexControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void proxyRepositoryIndexShouldBeReFetchedOnDemand(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
-                                                                               setup = MavenIndexedRepositorySetup.class)
-                                                              Repository repository,
+            setup = MavenIndexedRepositorySetup.class)
+                                                                      Repository repository,
                                                               @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
-                                                                                 id = "org.carlspring.strongbox.indexes:strongbox-test",
-                                                                                 versions = { "1.0",
-                                                                                              "1.1" },
-                                                                                 classifiers = { "javadoc",
-                                                                                                 "sources" })
-                                                              List<Path> artifactPaths,
+                                                                      id = "org.carlspring.strongbox.indexes:strongbox-test",
+                                                                      versions = { "1.0",
+                                                                                   "1.1" },
+                                                                      classifiers = { "javadoc",
+                                                                                      "sources" })
+                                                                      List<Path> artifactPaths,
                                                               @MavenRepository(repositoryId = REPOSITORY_PROXY_1,
-                                                                               setup = MavenIndexedRepositorySetup.class)
+                                                                      setup = MavenIndexedRepositorySetup.class)
                                                               @Remote(url = PROXY_1_REPOSITORY_URL)
-                                                              Repository proxyRepository)
+                                                                      Repository proxyRepository)
             throws IOException
     {
         hostedRepositoryIndexCreator.apply(repository);
@@ -214,7 +216,7 @@ public class MavenIndexControllerTest
 
         assertThat(indexPath).matches(not(Files::exists));
 
-        String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -234,25 +236,25 @@ public class MavenIndexControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void shouldNotAllowToReFetchTheIndex(@MavenRepository(repositoryId = REPOSITORY_RELEASES_3,
-                                                                 setup = MavenIndexedRepositorySetup.class)
-                                                Repository repository,
+            setup = MavenIndexedRepositorySetup.class)
+                                                        Repository repository,
                                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_3,
-                                                                   id = "org.carlspring.strongbox.indexes" + ":" + "strongbox-test",
-                                                                   versions = { "1.0",
-                                                                                "1.1" },
-                                                                   classifiers = { "javadoc",
-                                                                                   "sources" })
-                                                List<Path> artifactPaths,
+                                                        id = "org.carlspring.strongbox.indexes" + ":" + "strongbox-test",
+                                                        versions = { "1.0",
+                                                                     "1.1" },
+                                                        classifiers = { "javadoc",
+                                                                        "sources" })
+                                                        List<Path> artifactPaths,
                                                 @MavenRepository(repositoryId = REPOSITORY_PROXY_3)
                                                 @Remote(url = PROXY_3_REPOSITORY_URL)
-                                                Repository proxyRepository)
+                                                        Repository proxyRepository)
     {
         RepositoryPath indexPath = repositoryRemoteIndexDirectoryPathResolver.resolve(repository)
                                                                              .resolve("nexus-maven-repository-index.gz");
 
         assertThat(indexPath).matches(not(Files::exists));
 
-        String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -269,28 +271,27 @@ public class MavenIndexControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void shouldDownloadProxyRepositoryIndex(@MavenRepository(repositoryId = REPOSITORY_RELEASES_4,
-                                                                    setup = MavenIndexedRepositorySetup.class)
-                                                   Repository repository,
+            setup = MavenIndexedRepositorySetup.class)
+                                                           Repository repository,
                                                    @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_4,
-                                                                      id = "org.carlspring.strongbox.indexes:strongbox-test",
-                                                                      versions = { "1.0",
-                                                                                   "1.1" },
-                                                                      classifiers = { "javadoc",
-                                                                                      "sources" })
-                                                   List<Path> artifactPaths,
+                                                           id = "org.carlspring.strongbox.indexes:strongbox-test",
+                                                           versions = { "1.0",
+                                                                        "1.1" },
+                                                           classifiers = { "javadoc",
+                                                                           "sources" })
+                                                           List<Path> artifactPaths,
                                                    @MavenRepository(repositoryId = REPOSITORY_PROXY_4)
                                                    @Remote(url = PROXY_4_REPOSITORY_URL)
-                                                   Repository proxyRepository)
+                                                           Repository proxyRepository)
             throws IOException
     {
         hostedRepositoryIndexCreator.apply(repository);
         proxyRepositoryIndexCreator.apply(proxyRepository);
 
-        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_PROXY_4 +
-                     "/.index/nexus-maven-repository-index.gz";
+        String url = "/storages/{storageId}/{repositoryId}/{artifactPath}";
 
-        given().header(new Header("User-Agent", "Maven/*"))
-               .get(url)
+        given().header(HttpHeaders.USER_AGENT, "Maven/*")
+               .get(url, STORAGE0, REPOSITORY_PROXY_4, ".index/nexus-maven-repository-index.gz")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -302,32 +303,31 @@ public class MavenIndexControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void shouldDownloadProxyRepositoryIndexPropertiesFile(@MavenRepository(repositoryId = REPOSITORY_RELEASES_5,
-                                                                                  setup = MavenIndexedRepositorySetup.class)
-                                                                 Repository repository,
+            setup = MavenIndexedRepositorySetup.class)
+                                                                         Repository repository,
                                                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_5,
-                                                                                    id = "org.carlspring.strongbox.indexes:strongbox-test",
-                                                                                    versions = { "1.0",
-                                                                                                 "1.1" },
-                                                                                    classifiers = { "javadoc",
-                                                                                                    "sources" })
-                                                                 List<Path> artifactPaths,
+                                                                         id = "org.carlspring.strongbox.indexes:strongbox-test",
+                                                                         versions = { "1.0",
+                                                                                      "1.1" },
+                                                                         classifiers = { "javadoc",
+                                                                                         "sources" })
+                                                                         List<Path> artifactPaths,
                                                                  @MavenRepository(repositoryId = REPOSITORY_PROXY_5)
                                                                  @Remote(url = PROXY_5_REPOSITORY_URL)
-                                                                 Repository proxyRepository)
+                                                                         Repository proxyRepository)
             throws IOException
     {
         hostedRepositoryIndexCreator.apply(repository);
         proxyRepositoryIndexCreator.apply(proxyRepository);
 
-        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_PROXY_5 +
-                     "/.index/nexus-maven-repository-index.properties";
+        String url = "/storages/{storageId}/{repositoryId}/{artifactPath}";
 
-        given().header(new Header("User-Agent", "Maven/*"))
-               .get(url)
+        given().header(HttpHeaders.USER_AGENT, "Maven/*")
+               .get(url, STORAGE0, REPOSITORY_PROXY_5, ".index/nexus-maven-repository-index.properties")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .contentType("text/plain")
+               .contentType(MediaType.TEXT_PLAIN_VALUE)
                .body(CoreMatchers.notNullValue());
     }
 
@@ -335,29 +335,29 @@ public class MavenIndexControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void groupRepositoryIndexShouldBeMergedOnDemand(@MavenRepository(repositoryId = REPOSITORY_RELEASES_6,
-                                                                            setup = MavenIndexedRepositorySetup.class)
-                                                           Repository repository,
+            setup = MavenIndexedRepositorySetup.class)
+                                                                   Repository repository,
                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_6,
-                                                                              id = PROPERTIES_INJECTOR_GROUP_ID + ":" +
-                                                                                   PROPERTIES_INJECTOR_ARTIFACT_ID,
-                                                                              versions = { "1.8" },
-                                                                              classifiers = { "javadoc",
-                                                                                              "sources" })
-                                                           Path artifactPathPropertiesInjector,
+                                                                   id = PROPERTIES_INJECTOR_GROUP_ID + ":" +
+                                                                        PROPERTIES_INJECTOR_ARTIFACT_ID,
+                                                                   versions = { "1.8" },
+                                                                   classifiers = { "javadoc",
+                                                                                   "sources" })
+                                                                   Path artifactPathPropertiesInjector,
                                                            @MavenRepository(repositoryId = REPOSITORY_RELEASES_6_1,
-                                                                            setup = MavenIndexedRepositorySetup.class)
-                                                           Repository repository61,
+                                                                   setup = MavenIndexedRepositorySetup.class)
+                                                                   Repository repository61,
                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_6_1,
-                                                                              id = SLF4J_GROUP_ID + ":" + SLF4J_ARTIFACT_ID,
-                                                                              versions = { "1.9" },
-                                                                              classifiers = { "javadoc",
-                                                                                              "sources" })
-                                                           Path artifactPathSlf4j,
+                                                                   id = SLF4J_GROUP_ID + ":" + SLF4J_ARTIFACT_ID,
+                                                                   versions = { "1.9" },
+                                                                   classifiers = { "javadoc",
+                                                                                   "sources" })
+                                                                   Path artifactPathSlf4j,
                                                            @Group(repositories = { REPOSITORY_RELEASES_6,
-                                                                                                  REPOSITORY_RELEASES_6_1 })
+                                                                                   REPOSITORY_RELEASES_6_1 })
                                                            @MavenRepository(repositoryId = REPOSITORY_RELEASES_6_GROUP,
-                                                                            setup = MavenIndexedRepositorySetup.class)
-                                                           Repository groupRepository)
+                                                                   setup = MavenIndexedRepositorySetup.class)
+                                                                   Repository groupRepository)
             throws Exception
     {
         hostedRepositoryIndexCreator.apply(repository);
@@ -368,7 +368,7 @@ public class MavenIndexControllerTest
 
         assertThat(indexPath).matches(not(Files::exists));
 
-        String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)

@@ -22,6 +22,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
@@ -131,19 +133,14 @@ public class BrowseControllerTest
         assertTrue(htmlResponse.contains(repositoryId), "Returned HTML is incorrect");
     }
 
-    @Test
-    public void testGetRepositoriesWithStorageNotFound()
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_HTML_VALUE })
+    public void testGetRepositoriesWithStorageNotFound(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/storagefoo";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .prettyPeek()
-               .then()
-               .statusCode(HttpStatus.NOT_FOUND.value());
-
-        given().accept(MediaType.TEXT_HTML_VALUE)
+        given().accept(acceptHeader)
                .when()
                .get(url)
                .prettyPeek()
@@ -195,19 +192,14 @@ public class BrowseControllerTest
         assertTrue(htmlResponse.contains(link), "Expected to have found [ " + link + " ] in the response html");
     }
 
-    @Test
-    public void testRepositoryContentsWithRepositoryNotFound()
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_HTML_VALUE })
+    public void testRepositoryContentsWithRepositoryNotFound(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url, STORAGE0, "repofoo")
-               .prettyPeek()
-               .then()
-               .statusCode(HttpStatus.NOT_FOUND.value());
-
-        given().accept(MediaType.TEXT_HTML_VALUE)
+        given().accept(acceptHeader)
                .when()
                .get(url, STORAGE0, "repofoo")
                .prettyPeek()
@@ -215,19 +207,14 @@ public class BrowseControllerTest
                .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
-    @Test
-    public void testRepositoryContentsWithPathNotFound()
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_HTML_VALUE })
+    public void testRepositoryContentsWithPathNotFound(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}/{artifactPath}";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url, STORAGE0, "releases", "foo/bar")
-               .prettyPeek()
-               .then()
-               .statusCode(HttpStatus.NOT_FOUND.value());
-
-        given().accept(MediaType.TEXT_HTML_VALUE)
+        given().accept(acceptHeader)
                .when()
                .get(url, STORAGE0, "releases", "foo/bar")
                .prettyPeek()

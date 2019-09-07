@@ -16,15 +16,11 @@ import org.slf4j.LoggerFactory;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
-
-
 public class PasswordValidatorTest
 {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
-
     private static Validator validator;
+    private final Logger logger = LoggerFactory.getLogger(PasswordValidatorTest.class);
 
     @BeforeEach
     public void setUp()
@@ -105,7 +101,8 @@ public class PasswordValidatorTest
     {
         PasswordAnnotationTestClass testClass = new PasswordAnnotationTestClass();
         testClass.setPassword(null);
-        Set<ConstraintViolation<PasswordAnnotationTestClass>> violations = validator.validate(testClass, PasswordAnnotationTestClass.ExistingUser.class);
+        Set<ConstraintViolation<PasswordAnnotationTestClass>> violations = validator.validate(testClass,
+                                                                                              PasswordAnnotationTestClass.ExistingUser.class);
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 

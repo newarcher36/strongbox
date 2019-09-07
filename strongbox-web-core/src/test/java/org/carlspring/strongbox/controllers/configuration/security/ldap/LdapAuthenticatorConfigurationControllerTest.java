@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.restassured.http.ContentType;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -68,12 +69,10 @@ public class LdapAuthenticatorConfigurationControllerTest
         List<AuthenticationItem> authenticationItemList = authenticationItems.getAuthenticationItemList();
         for (AuthenticationItem authenticationItem : authenticationItemList)
         {
-            if (!"ldapUserDetailsService".equals(authenticationItem.getName()))
+            if (StringUtils.equals("ldapUserDetailsService", authenticationItem.getName()))
             {
-                continue;
+                authenticationItem.setEnabled(true);
             }
-
-            authenticationItem.setEnabled(true);
         }
         providerManager.updateAuthenticationItems(authenticationItems);
     }
@@ -233,7 +232,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     }
 
     @WithMockUser(authorities = "ADMIN")
-    @Test()
+    @Test
     @Disabled
     public void ldapConfigurationTestShouldFailWithWithInvalidManagerDn()
     {
@@ -329,6 +328,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         LdapConfigurationTestForm form = new LdapConfigurationTestForm();
 
         LdapConfiguration configuration = ldapAuthenticationConfigurationManager.getConfiguration();
+
         form.setConfiguration(configuration);
         return form;
     }

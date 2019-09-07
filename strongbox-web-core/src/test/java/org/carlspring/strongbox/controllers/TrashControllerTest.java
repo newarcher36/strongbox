@@ -187,7 +187,6 @@ public class TrashControllerTest
         ValidatableMockMvcResponse response = given().accept(acceptHeader)
                                                      .when()
                                                      .delete(url)
-                                                     .peek()
                                                      .then()
                                                      .statusCode(HttpStatus.OK.value());
 

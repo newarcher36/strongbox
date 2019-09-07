@@ -134,15 +134,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
         String repositoryId = repository.getId();
         int numberOfConnections = 5;
 
-        String url = getContextBaseUrl() + "/{storageId}/{respositoryId}/{numberOfConnections}";
-
-        given().accept(MediaType.TEXT_PLAIN_VALUE)
-               .when()
-               .put(url, storageId, repositoryId, numberOfConnections)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(equalTo("Number of pool connections for repository was updated successfully."));
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}/{numberOfConnections}";
 
         ValidatableMockMvcResponse response = given().accept(acceptHeader)
                                                      .when()
@@ -154,16 +146,9 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
         String message = "Number of pool connections for repository was updated successfully.";
         validateResponseBody(response, acceptHeader, message);
 
-        url = getContextBaseUrl() + "/{storageId}/{respositoryId}";
+        url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         PoolStats expectedPoolStats = new PoolStats(0, 0, 0, numberOfConnections);
-        given().accept(MediaType.TEXT_PLAIN_VALUE)
-               .when()
-               .get(url, storageId, repositoryId)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(containsString("max: " + expectedPoolStats.getMax()));
 
         response = given().accept(acceptHeader)
                           .when()

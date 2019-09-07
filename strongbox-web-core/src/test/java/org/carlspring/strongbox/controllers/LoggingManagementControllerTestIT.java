@@ -12,7 +12,6 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -29,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author Aditya Srinivasan
  */
 // TODO migrate to https://docs.spring.io/spring-boot/docs/current/actuator-api/html/#loggers after https://github.com/strongbox/strongbox/issues/1046
-@Disabled
 @IntegrationTest
 public class LoggingManagementControllerTestIT
         extends RestAssuredBaseTest
