@@ -393,7 +393,6 @@ public class UserControllerTestIT
     }
 
     @ParameterizedTest
-    @WithUserDetails("admin")
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
     void changeOwnUser(String acceptHeader)
@@ -423,7 +422,6 @@ public class UserControllerTestIT
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
-    @WithUserDetails("admin")
     void shouldBeAbleToUpdateRoles(String acceptHeader)
     {
         final String username = "test-user";

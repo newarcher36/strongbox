@@ -65,7 +65,6 @@ public class AccountControllerTest
     }
 
     @Test
-    @WithUserDetails("admin")
     public void testGetAccountDetails()
     {
         String url = getContextBaseUrl();
