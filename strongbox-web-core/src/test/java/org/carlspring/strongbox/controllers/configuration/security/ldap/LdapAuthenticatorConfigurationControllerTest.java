@@ -23,6 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -36,6 +38,7 @@ import org.springframework.test.context.ActiveProfiles;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author Przemyslaw Fusik
@@ -45,6 +48,7 @@ import static org.hamcrest.CoreMatchers.startsWith;
 @IntegrationTest
 @ActiveProfiles({ "LdapAuthenticatorConfigurationControllerTest",
                   "test" })
+@Execution(SAME_THREAD)
 public class LdapAuthenticatorConfigurationControllerTest
         extends RestAssuredBaseTest
 {
