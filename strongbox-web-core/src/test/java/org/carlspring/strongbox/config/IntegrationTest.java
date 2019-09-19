@@ -25,7 +25,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 
 /**
@@ -40,7 +39,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
                             MockedRemoteRepositoriesHeartbeatConfig.class,
                             IntegrationTest.IntegrationTestsConfiguration.class,
                             TestingCoreConfig.class })
-@WebAppConfiguration("classpath:")
 @WithUserDetails("admin")
 @ActiveProfiles("test")
 @TestExecutionListeners(listeners = { RestAssuredTestExecutionListener.class,

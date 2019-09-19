@@ -1,10 +1,9 @@
 package org.carlspring.strongbox.controllers.configuration.security.ldap;
 
 import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
-import org.carlspring.strongbox.authentication.api.AuthenticationItem;
-import org.carlspring.strongbox.authentication.api.AuthenticationItems;
 import org.carlspring.strongbox.authentication.external.ldap.LdapAuthenticationConfigurationManager;
 import org.carlspring.strongbox.authentication.external.ldap.LdapConfiguration;
+import org.carlspring.strongbox.authentication.registry.AuthenticationResourceManager;
 import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
@@ -13,24 +12,20 @@ import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurat
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.restassured.http.ContentType;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -67,18 +62,6 @@ public class LdapAuthenticatorConfigurationControllerTest
         super.init();
 
         setContextBaseUrl("/api/configuration/ldap");
-        providerManager.reload();
-
-        AuthenticationItems authenticationItems = providerManager.getAuthenticationItems();
-        List<AuthenticationItem> authenticationItemList = authenticationItems.getAuthenticationItemList();
-        for (AuthenticationItem authenticationItem : authenticationItemList)
-        {
-            if (StringUtils.equals("ldapUserDetailsService", authenticationItem.getName()))
-            {
-                authenticationItem.setEnabled(true);
-            }
-        }
-        providerManager.updateAuthenticationItems(authenticationItems);
     }
 
     @WithMockUser(authorities = "ADMIN")
@@ -108,9 +91,11 @@ public class LdapAuthenticatorConfigurationControllerTest
                .statusCode(HttpStatus.OK.value());
     }
 
+
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void shouldUpdateFullLdapConfiguration()
+            throws IOException
     {
 
         LdapConfiguration configuration = ldapAuthenticationConfigurationManager.getConfiguration();
@@ -159,6 +144,9 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("userDnPatternList[0]", equalTo("uid={0},ou=Users"))
                .body("userDnPatternList[1]", equalTo("uid={0},ou=AllUsers"))
                .statusCode(HttpStatus.OK.value());
+
+        // rollback
+        providerManager.reload();
     }
 
     @WithMockUser(authorities = "ADMIN")
@@ -349,6 +337,25 @@ public class LdapAuthenticatorConfigurationControllerTest
         public HazelcastInstanceId hazelcastInstanceIdLacct()
         {
             return new HazelcastInstanceId("LdapAuthenticatorConfigurationControllerTest-hazelcast-instance");
+        }
+
+        @Bean
+        @Primary
+        public AuthenticationResourceManager testAuthenticationResourceManager()
+        {
+            return new TestAuthenticationResourceManager();
+        }
+
+    }
+
+    private static class TestAuthenticationResourceManager
+            extends AuthenticationResourceManager
+    {
+
+        @Override
+        public Resource getAuthenticationPropertiesResource()
+        {
+            return new DefaultResourceLoader().getResource("classpath:ldap-strongbox-authentication-providers.yaml");
         }
 
     }
